@@ -9,6 +9,7 @@ import com.microsoft.azure.sdk.iot.service.RegistryManager;
 import com.microsoft.azure.sdk.iot.service.ServiceClient;
 import com.microsoft.azure.sdk.iot.service.auth.AuthenticationType;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -25,6 +26,7 @@ import tests.integration.com.microsoft.azure.sdk.iot.longhaul.helpers.callbacks.
 import tests.integration.com.microsoft.azure.sdk.iot.longhaul.helpers.callbacks.impl.DeviceClientCloudToDeviceTelemetryAddOn;
 import tests.integration.com.microsoft.azure.sdk.iot.longhaul.helpers.callbacks.impl.DeviceClientLonghaulTestAddOnCollection;
 import tests.integration.com.microsoft.azure.sdk.iot.longhaul.helpers.callbacks.impl.DeviceClientDeviceToCloudTelemetryAddOn;
+import tests.integration.com.microsoft.azure.sdk.iot.longhaul.helpers.callbacks.impl.DeviceClientTwinAddOn;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -62,6 +64,7 @@ public class DeviceClientLonghaulTests extends LonghaulTests
         });
     }
 
+    @Ignore
     @Test
     public void testDeviceToCloudTelemetry() throws Exception
     {
@@ -70,6 +73,7 @@ public class DeviceClientLonghaulTests extends LonghaulTests
         deviceClientLonghaulTestBase(testDeviceToCloudTelemetry, 1, false, testParameters);
     }
 
+    @Ignore
     @Test
     public void testCloudToDeviceTelemetry() throws Exception
     {
@@ -77,6 +81,7 @@ public class DeviceClientLonghaulTests extends LonghaulTests
         deviceClientLonghaulTestBase(testCloudToDeviceTelemetry, 1, false, testParameters);
     }
 
+    @Ignore
     @Test
     public void testCloudToDeviceAndDeviceToCloudTelemetry() throws Exception
     {
@@ -88,6 +93,7 @@ public class DeviceClientLonghaulTests extends LonghaulTests
         deviceClientLonghaulTestBase(testCloudToDeviceTelemetryAndCloudToDeviceTelemetry, 1, false, testParameters);
     }
 
+    @Ignore
     @Test
     public void testDeviceToCloudTelemetryWithRandomFaultInjection() throws Exception
     {
@@ -100,6 +106,19 @@ public class DeviceClientLonghaulTests extends LonghaulTests
         DeviceClientLonghaulTestAddOn testDeviceToCloudTelemetry = new DeviceClientDeviceToCloudTelemetryAddOn();
 
         deviceClientLonghaulTestBase(testDeviceToCloudTelemetry, 1, true, testParameters);
+    }
+
+    @Test
+    public void testTwin() throws Exception
+    {
+        if (testParameters.getProtocol() == HTTPS)
+        {
+            return;
+        }
+
+        DeviceClientTwinAddOn testTwin = new DeviceClientTwinAddOn();
+
+        deviceClientLonghaulTestBase(testTwin, 1, false, testParameters);
     }
 
     public static void deviceClientLonghaulTestBase(

@@ -10,6 +10,7 @@ import com.microsoft.azure.sdk.iot.service.RegistryManager;
 import com.microsoft.azure.sdk.iot.service.ServiceClient;
 import com.microsoft.azure.sdk.iot.service.auth.AuthenticationType;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,6 +57,7 @@ public class MultiplexingClientLonghaulTests extends LonghaulTests
         });
     }
 
+    @Ignore
     @Test
     public void testMultiplexedDeviceToCloudTelemetry() throws Exception
     {
@@ -65,6 +67,7 @@ public class MultiplexingClientLonghaulTests extends LonghaulTests
         multiplexingClientLonghaulTestBase(testDeviceToCloudTelemetry, 1, false, testParameters);
     }
 
+    @Ignore
     @Test
     public void testMultiplexedDeviceToCloudTelemetryWithFaultInjection() throws Exception
     {
