@@ -33,7 +33,7 @@ public abstract class LonghaulTests
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(MINUTES_PRINT_PATTERN);
 
     public static final int SLEEP_PERIOD_IN_SECONDS = 60 * 10; // 10 minutes between each testable action
-    public static final int LONGHAUL_TEST_LENGTH_HOURS = 1;
+    public static final int LONGHAUL_TEST_LENGTH_HOURS = 48;
 
     public static final String SET_MINIMUM_POLLING_INTERVAL = "SetMinimumPollingInterval";
     public static final Long ONE_SECOND_POLLING_INTERVAL = 1000L;
