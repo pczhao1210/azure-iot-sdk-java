@@ -440,6 +440,7 @@ public class AmqpsSessionHandler extends BaseHandler implements AmqpsLinkStateCa
             // subscription is automatically sent once the twin links are opened, so there is no need to send
             // this message over the wire.
             this.amqpsSessionStateCallback.onMessageAcknowledged(transportMessage, Accepted.getInstance(), this.getDeviceId());
+            log.info("Ack'ing twin subscription message because twin links are already open");
             return SendResult.SUCCESS;
         }
 
@@ -450,6 +451,7 @@ public class AmqpsSessionHandler extends BaseHandler implements AmqpsLinkStateCa
             // it will be ack'd.
             createTwinLinksAsync();
             this.explicitInProgressTwinSubscriptionMessage = transportMessage;
+            log.info("Ack'ing twin subscription message because twin links are now opening");
             return SendResult.SUCCESS;
         }
 
