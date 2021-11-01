@@ -79,6 +79,7 @@ public class DeviceClientTwinAddOn implements DeviceClientLonghaulTestAddOn
         desiredProperties.add(pair);
 
         log.info("Sending desired property {} {}", pair.getKey(), pair.getValue());
+        deviceTwinDevice.setDesiredProperties(desiredProperties);
         twinClient.updateTwin(deviceTwinDevice);
     }
 
