@@ -66,14 +66,20 @@ public class DeviceClientTwinAddOn implements DeviceClientLonghaulTestAddOn
     {
         Set<Property> reportedProperties = new HashSet<>();
         String value = new Date().toString();
-        reportedProperties.add(new Property("key", value));
+        Property p = new Property("key", value);
+        reportedProperties.add(p);
+        log.info("Sending reported property {} {}", p.getKey(), p.getValue());
         clientUnderTest.sendReportedProperties(reportedProperties);
 
         DeviceTwin twinClient = new DeviceTwin(Tools.retrieveEnvironmentVariableValue(TestConstants.IOT_HUB_CONNECTION_STRING_ENV_VAR_NAME));
         DeviceTwinDevice deviceTwinDevice = new DeviceTwinDevice(clientUnderTest.getConfig().getDeviceId());
         twinClient.getTwin(deviceTwinDevice);
         Set<Pair> desiredProperties = deviceTwinDevice.getDesiredProperties();
-        desiredProperties.add(new Pair(UUID.randomUUID().toString(), new Date().toString()));
+        Pair pair = new Pair(UUID.randomUUID().toString(), new Date().toString());
+        desiredProperties.add(pair);
+
+        log.info("Sending desired property {} {}", pair.getKey(), pair.getValue());
+        twinClient.updateTwin(deviceTwinDevice);
     }
 
     @Override
