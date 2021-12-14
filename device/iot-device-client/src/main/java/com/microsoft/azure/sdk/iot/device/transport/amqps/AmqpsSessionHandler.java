@@ -11,6 +11,7 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.*;
+import org.apache.qpid.proton.reactor.Reactor;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -311,13 +312,13 @@ public class AmqpsSessionHandler extends BaseHandler implements AmqpsLinkStateCa
         this.amqpsSessionStateCallback.onSessionClosedUnexpectedly(errorCondition, this.getDeviceId());
     }
 
-    public boolean acknowledgeReceivedMessage(IotHubTransportMessage message, DeliveryState ackType)
+    public boolean acknowledgeReceivedMessage(IotHubTransportMessage message, DeliveryState ackType, ReactorRunner reactorRunner)
     {
         AmqpsReceiverLinkHandler receiverLinkHandler = receiverLinkHandlers.get(message.getMessageType());
 
         if (receiverLinkHandler != null)
         {
-            return receiverLinkHandler.acknowledgeReceivedMessage(message, ackType);
+            return receiverLinkHandler.acknowledgeReceivedMessage(message, ackType, reactorRunner);
         }
 
         log.warn("Failed to acknowledge the received message because its receiver link is no longer active");

@@ -92,6 +92,8 @@ public final class AmqpsIotHubConnection extends BaseHandler implements IotHubTr
     private Connection connection;
     private Reactor reactor;
 
+    private ReactorRunner reactorRunner;
+
     // keys are device Ids, values are the session handlers associated with that device id
     private final Map<String, AmqpsSessionHandler> reconnectingDeviceSessionHandlers = new ConcurrentHashMap<>();
 
@@ -633,7 +635,7 @@ public final class AmqpsIotHubConnection extends BaseHandler implements IotHubTr
         }
 
         AmqpsSessionHandler sessionHandler = sessionHandlers.get(message.getConnectionDeviceId());
-        if (sessionHandler != null && sessionHandler.acknowledgeReceivedMessage(message, ackType))
+        if (sessionHandler != null && sessionHandler.acknowledgeReceivedMessage(message, ackType, reactorRunner))
         {
             return true;
         }
@@ -1224,7 +1226,7 @@ public final class AmqpsIotHubConnection extends BaseHandler implements IotHubTr
                 : this.deviceClientConfig.getDeviceClientUniqueIdentifier();
 
         String reactorRunnerPrefix = this.hostName + "-" + runnerUniqueIdentifier + "-" + "Cnx" + this.connectionId;
-        ReactorRunner reactorRunner = new ReactorRunner(
+        reactorRunner = new ReactorRunner(
             this.reactor,
             this.listener,
             this.connectionId,

@@ -8,7 +8,9 @@ import com.microsoft.azure.sdk.iot.device.transport.IotHubListener;
 import org.apache.qpid.proton.engine.HandlerException;
 import org.apache.qpid.proton.reactor.Reactor;
 
+import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ReactorRunner implements Callable<Object>
 {
@@ -19,6 +21,7 @@ public class ReactorRunner implements Callable<Object>
     private final ReactorRunnerStateCallback reactorRunnerStateCallback;
     private final String threadPostfix;
     private final String threadPrefix;
+    private final Queue<Callable<Object>> workQueue;
 
     ReactorRunner(
             Reactor reactor,
@@ -34,6 +37,7 @@ public class ReactorRunner implements Callable<Object>
         this.reactorRunnerStateCallback = reactorRunnerStateCallback;
         this.threadPrefix = threadPrefix;
         this.threadPostfix = threadPostfix;
+        workQueue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
@@ -50,6 +54,17 @@ public class ReactorRunner implements Callable<Object>
             while (this.reactor.process())
             {
                 // The empty while loop is to ensure that reactor thread runs as long as it has messages to process
+                Callable<Object> workToExecute = workQueue.poll();
+                if (workToExecute != null) {
+                    try
+                    {
+                        workToExecute.call();
+                    }
+                    catch (Exception e)
+                    {
+                        // Swallow this for now as we don't want to fail the reactor
+                    }
+                }
             }
             this.reactor.stop();
             this.reactor.process();
@@ -68,11 +83,16 @@ public class ReactorRunner implements Callable<Object>
 
             this.listener.onConnectionLost(transportException, connectionId);
         }
+
         finally
         {
             reactor.free();
         }
 
         return null;
+    }
+
+    public void queueWorkToReactor(Callable<Object> methodToExecute) {
+        workQueue.add(methodToExecute);
     }
 }

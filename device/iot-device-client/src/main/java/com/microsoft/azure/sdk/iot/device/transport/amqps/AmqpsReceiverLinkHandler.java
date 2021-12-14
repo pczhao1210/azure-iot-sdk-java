@@ -144,11 +144,15 @@ public abstract class AmqpsReceiverLinkHandler extends BaseHandler
         }
     }
 
-    public boolean acknowledgeReceivedMessage(IotHubTransportMessage message, DeliveryState ackType)
+    public boolean acknowledgeReceivedMessage(IotHubTransportMessage message, DeliveryState ackType, ReactorRunner reactorRunner)
     {
         if (this.receivedMessagesMap.containsKey(message))
         {
-            this.receivedMessagesMap.remove(message).acknowledge(ackType);
+            AmqpsMessage messageToAck = this.receivedMessagesMap.remove(message);
+            reactorRunner.queueWorkToReactor(() -> {
+                messageToAck.acknowledge(ackType);
+                return null;
+            });
             return true;
         }
 
