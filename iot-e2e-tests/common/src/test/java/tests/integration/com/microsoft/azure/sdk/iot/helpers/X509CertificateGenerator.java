@@ -11,6 +11,7 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
@@ -19,6 +20,7 @@ import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.spec.ECGenParameterSpec;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -31,8 +33,8 @@ public class X509CertificateGenerator
 {
     // subject name is the same as the issuer string because it is self signed.
     private static final String ISSUER_STRING = "C=US, O=Microsoft, L=Redmond, OU=Azure";
-    private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
-    private static final String KEY_PAIR_ALGORITHM = "RSA";
+    private static final String SIGNATURE_ALGORITHM = "SHA256withECDSA";
+    private static final String KEY_PAIR_ALGORITHM = "ECDH";
 
     private final static String PRIVATE_KEY_HEADER = "-----BEGIN PRIVATE KEY-----\n";
     private final static String PRIVATE_KEY_FOOTER = "\n-----END PRIVATE KEY-----\n";
@@ -50,6 +52,9 @@ public class X509CertificateGenerator
      */
     public X509CertificateGenerator()
     {
+        BouncyCastleProvider prov = new BouncyCastleProvider();
+        Security.addProvider(prov);
+
         try
         {
             this.generateCertificate();
@@ -67,6 +72,9 @@ public class X509CertificateGenerator
      */
     public X509CertificateGenerator(String commonName)
     {
+        BouncyCastleProvider prov = new BouncyCastleProvider();
+        Security.addProvider(prov);
+
         try
         {
             this.generateCertificate(commonName);
@@ -122,7 +130,7 @@ public class X509CertificateGenerator
     /**
      * generate a new certificate
      */
-    private void generateCertificate() throws CertificateException, NoSuchAlgorithmException, OperatorCreationException, SignatureException, NoSuchProviderException, InvalidKeyException
+    private void generateCertificate() throws CertificateException, NoSuchAlgorithmException, OperatorCreationException, SignatureException, NoSuchProviderException, InvalidKeyException, InvalidAlgorithmParameterException
     {
         generateCertificate(null);
     }
@@ -130,10 +138,11 @@ public class X509CertificateGenerator
     /**
      * generate a new certificate using the provided common name
      */
-    private void generateCertificate(String commonName) throws CertificateException, NoSuchAlgorithmException, OperatorCreationException, SignatureException, NoSuchProviderException, InvalidKeyException
+    private void generateCertificate(String commonName) throws CertificateException, NoSuchAlgorithmException, OperatorCreationException, SignatureException, NoSuchProviderException, InvalidKeyException, InvalidAlgorithmParameterException
     {
+        ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime256v1");
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KEY_PAIR_ALGORITHM);
-        keyGen.initialize(4096, new SecureRandom());
+        keyGen.initialize(ecSpec);
         KeyPair keypair = keyGen.generateKeyPair();
         this.x509Certificate = createX509CertificateFromKeyPair(keypair, commonName);
         this.x509Thumbprint = new String(Hex.encodeHex(DigestUtils.sha(x509Certificate.getEncoded())));
