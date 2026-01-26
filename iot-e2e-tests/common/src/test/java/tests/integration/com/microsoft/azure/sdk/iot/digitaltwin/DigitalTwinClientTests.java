@@ -3,6 +3,10 @@
 
 package tests.integration.com.microsoft.azure.sdk.iot.digitaltwin;
 
+import com.github.monkeywie.proxyee.server.HttpProxyServer;
+import com.github.monkeywie.proxyee.server.HttpProxyServerConfig;
+import com.github.monkeywie.proxyee.server.auth.BasicHttpProxyAuthenticationProvider;
+import com.github.monkeywie.proxyee.server.auth.model.BasicHttpToken;
 import com.google.gson.JsonElement;
 import com.microsoft.azure.sdk.iot.device.*;
 import com.microsoft.azure.sdk.iot.device.exceptions.IotHubClientException;
@@ -36,8 +40,6 @@ import tests.integration.com.microsoft.azure.sdk.iot.helpers.Tools;
 import tests.integration.com.microsoft.azure.sdk.iot.helpers.annotations.DigitalTwinTest;
 import tests.integration.com.microsoft.azure.sdk.iot.helpers.annotations.IotHubTest;
 import tests.integration.com.microsoft.azure.sdk.iot.helpers.annotations.StandardTierHubOnlyTest;
-import tests.integration.com.microsoft.azure.sdk.iot.helpers.proxy.HttpProxyServer;
-import tests.integration.com.microsoft.azure.sdk.iot.helpers.proxy.impl.DefaultHttpProxyServer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -135,15 +137,16 @@ public class DigitalTwinClientTests extends IntegrationTest
     @BeforeClass
     public static void startProxy()
     {
-        proxyServer = DefaultHttpProxyServer.bootstrap()
-                .withPort(testProxyPort)
-                .start();
+        HttpProxyServerConfig config = new HttpProxyServerConfig();
+        config.setHandleSsl(false);
+        proxyServer = new HttpProxyServer().serverConfig(config);
+        proxyServer.startAsync(testProxyPort);
     }
 
     @AfterClass
     public static void stopProxy()
     {
-        proxyServer.stop();
+        proxyServer.close();
     }
 
     // Open a multiplexed connection with two devices, each with a different model Id. Verify that their reported twin has

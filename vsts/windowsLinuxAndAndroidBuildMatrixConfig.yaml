@@ -21,7 +21,7 @@ jobs:
       vmImage: windows-latest
     steps:     
     - task: AzureCLI@2
-      name: deployCloudTestResources 
+      name: deployCloudTestResources
       inputs:
         azureSubscription: 'iot hub sdk service connection'
         scriptType: 'pscore'
@@ -244,8 +244,13 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     displayName: Android Build
-    condition: false
     steps:
+      - task: JavaToolInstaller@0
+        inputs:
+          versionSpec: 17
+          jdkArchitectureOption: 'x64'
+          jdkSourceOption: 'PreInstalled'
+          
       - powershell: ./vsts/echo_versions.ps1
         displayName: 'Echo Versions'
         env:
@@ -265,7 +270,7 @@ jobs:
           IOT_DPS_ID_SCOPE: $(DPS_IDSCOPE)
           IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)
           TARGET_BRANCH: $(System.PullRequest.TargetBranch)
-          RECYCLE_TEST_IDENTITIES: true
+          RECYCLE_TEST_IDENTITIES: "true"
         condition: always()
 
       - task: CopyFiles@2
@@ -294,7 +299,6 @@ jobs:
 
   - job: AndroidTest
     timeoutInMinutes: 50
-    condition: false
     pool:
       vmImage: 'macOS-latest'
     strategy:
@@ -379,6 +383,7 @@ jobs:
     dependsOn:
       - Windows
       - Linux
+      - AndroidTest
       - DeployCloudTestResources
     variables:
       RESOURCE_GROUP_NAME: $[ dependencies.DeployCloudTestResources.outputs['deployCloudTestResources.RESOURCE_GROUP_NAME'] ]
